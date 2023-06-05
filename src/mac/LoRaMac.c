@@ -2204,7 +2204,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 break;
             }
             case SRV_MAC_LINK_ADR_REQ:
-            {
+            {  //UFR-TR-12
                 LinkAdrReqParams_t linkAdrReq;
                 int8_t linkAdrDatarate = DR_0;
                 int8_t linkAdrTxPower = TX_POWER_0;
@@ -2265,7 +2265,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                             Nvm.MacGroup2.MacParams.ChannelsNbTrans = linkAdrNbRep;
                         }
 
-                        // Add the answers to the buffer
+                        // UFR-GW-12 Add the answers to the buffer
                         for( uint8_t i = 0; i < ( linkAdrNbBytesParsed / 5 ); i++ )
                         {
                             LoRaMacCommandsAddCmd( MOTE_MAC_LINK_ADR_ANS, &status, 1 );
@@ -2293,14 +2293,14 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 break;
             }
             case SRV_MAC_DUTY_CYCLE_REQ:
-            {
+            { //UFR-TR-13 dutycyclereq command
                 Nvm.MacGroup2.MaxDCycle = payload[macIndex++] & 0x0F;
                 Nvm.MacGroup2.AggregatedDCycle = 1 << Nvm.MacGroup2.MaxDCycle;
                 LoRaMacCommandsAddCmd( MOTE_MAC_DUTY_CYCLE_ANS, macCmdPayload, 0 );
                 break;
             }
             case SRV_MAC_RX_PARAM_SETUP_REQ:
-            {
+            {   //UFR-TR-14 rx parameter setting 
                 RxParamSetupReqParams_t rxParamSetupReq;
                 status = 0x07;
 
@@ -2335,7 +2335,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 break;
             }
             case SRV_MAC_DEV_STATUS_REQ:
-            {
+            {   //UFR-TR-15 Terminal status checking
                 uint8_t batteryLevel = BAT_LEVEL_NO_MEASURE;
                 if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->GetBatteryLevel != NULL ) )
                 {
@@ -2347,7 +2347,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 break;
             }
             case SRV_MAC_NEW_CHANNEL_REQ:
-            {
+            {   //UFR-TR-16 New channel request
                 NewChannelReqParams_t newChannelReq;
                 ChannelParams_t chParam;
                 status = 0x03;
@@ -2372,7 +2372,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 break;
             }
             case SRV_MAC_RX_TIMING_SETUP_REQ:
-            {
+            {   //UFR-TR-17 RX Timing setting
                 uint8_t delay = payload[macIndex++] & 0x0F;
 
                 if( delay == 0 )
@@ -5371,7 +5371,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
             break;
         }
         case MLME_LINK_CHECK:
-        {
+        {   //UFR-TR-11 for linkcheckreq
             // LoRaMac will send this command piggy-pack
             status = LORAMAC_STATUS_OK;
             if( LoRaMacCommandsAddCmd( MOTE_MAC_LINK_CHECK_REQ, macCmdPayload, 0 ) != LORAMAC_COMMANDS_SUCCESS )
@@ -5386,7 +5386,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
             break;
         }
         case MLME_DEVICE_TIME:
-        {
+        {   //UFR-TR-18 Terminal Time Setting 
             // LoRaMac will send this command piggy-pack
             status = LORAMAC_STATUS_OK;
             if( LoRaMacCommandsAddCmd( MOTE_MAC_DEVICE_TIME_REQ, macCmdPayload, 0 ) != LORAMAC_COMMANDS_SUCCESS )
