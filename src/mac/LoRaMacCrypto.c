@@ -866,7 +866,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntUp( uint32_t* currentUp )
     {
         return LORAMAC_CRYPTO_ERROR_NPE;
     }
-
+    //UFR-TR-10 FCnt for UL
     *currentUp = CryptoNvm->FCntList.FCntUp + 1;
 
     return LORAMAC_CRYPTO_SUCCESS;
