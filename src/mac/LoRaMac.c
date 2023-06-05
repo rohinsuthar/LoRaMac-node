@@ -949,17 +949,18 @@ static void ProcessRadioRxDone( void )
     macHdr.Value = payload[pktHeaderLen++];
 
     // Accept frames of LoRaWAN Major Version 1 only
-    if( macHdr.Bits.Major != 0 )
+    //Here we need to change the major version for dcaLPWAN so we disable this condition
+   /* if( macHdr.Bits.Major != 0 )
     {
         MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
         PrepareRxDoneAbort( );
         return;
-    }
+    } */
 
     switch( macHdr.Bits.MType )
     {
         case FRAME_TYPE_JOIN_ACCEPT:
-        {
+        {    //UFR-TR-04 this is for join accept message
             // Check if the received frame size is valid
             if( size < LORAMAC_JOIN_ACCEPT_FRAME_MIN_SIZE )
             {
@@ -1056,7 +1057,7 @@ static void ProcessRadioRxDone( void )
                     Nvm.MacGroup2.Version.Value = LORAMAC_VERSION;
                 }
 
-                // Apply CF list
+                // UFR-TR-05 Apply CF list and operating frequency setting 
                 applyCFList.Payload = macMsgJoinAccept.CFList;
                 // Size of the regular payload is 12. Plus 1 byte MHDR and 4 bytes MIC
                 applyCFList.Size = size - 17;
@@ -1106,9 +1107,11 @@ static void ProcessRadioRxDone( void )
             }
             break;
         }
+        //UFR-TR-09 confirmed DL
         case FRAME_TYPE_DATA_CONFIRMED_DOWN:
             MacCtx.McpsIndication.McpsIndication = MCPS_CONFIRMED;
             // Intentional fall through
+        //UFR-TR-08 unconfirmed DL
         case FRAME_TYPE_DATA_UNCONFIRMED_DOWN:
             // Check if the received payload size is valid
             getPhy.UplinkDwellTime = Nvm.MacGroup2.MacParams.DownlinkDwellTime;
@@ -2813,7 +2816,7 @@ LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType )
             break;
         }
         case JOIN_REQ:
-        {
+        {   //UFR-TR-04
             SwitchClass( CLASS_A );
 
             MacCtx.TxMsg.Type = LORAMAC_MSG_TYPE_JOIN_REQUEST;
@@ -3295,10 +3298,11 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl
     MacCtx.PktBuffer[0] = macHdr->Value;
 
     switch( macHdr->Bits.MType )
-    {
+    {   //UFR-TR-07 for confirmed UL
         case FRAME_TYPE_DATA_CONFIRMED_UP:
             MacCtx.NodeAckRequested = true;
             // Intentional fall through
+            //UFR-TR-06 for unconfirmed UL
         case FRAME_TYPE_DATA_UNCONFIRMED_UP:
             MacCtx.TxMsg.Type = LORAMAC_MSG_TYPE_DATA;
             MacCtx.TxMsg.Message.Data.Buffer = MacCtx.PktBuffer;
