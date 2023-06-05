@@ -1296,8 +1296,8 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
     // Verify if we are in the state where we expect a beacon
     if( ( Ctx.BeaconState == BEACON_STATE_RX ) || ( Ctx.BeaconCtx.Ctrl.AcquisitionPending == 1 ) )
     {
-        if( size == phyParam.BeaconFormat.BeaconSize )
-        {
+        /* if( size == phyParam.BeaconFormat.BeaconSize ) */
+        
             // A beacon frame is defined as:
             // Bytes: |  x   |   1   |  4   |  2   |     7      |  y   |  2   |
             //        |------|-------|------|------|------------|------|------|
@@ -1306,32 +1306,32 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
             // Field RFU1 and RFU2 have variable sizes. It depends on the region specific implementation
 
             // Read CRC1 field from the frame
-            beaconCrc0 = ( ( uint16_t )payload[phyParam.BeaconFormat.Rfu1Size + 1 + 4] ) & 0x00FF;
+          /*  beaconCrc0 = ( ( uint16_t )payload[phyParam.BeaconFormat.Rfu1Size + 1 + 4] ) & 0x00FF;
             beaconCrc0 |= ( ( uint16_t )payload[phyParam.BeaconFormat.Rfu1Size + 1 + 4 + 1] << 8 ) & 0xFF00;
-            crc0 = BeaconCrc( payload, phyParam.BeaconFormat.Rfu1Size + 1 + 4 );
+            crc0 = BeaconCrc( payload, phyParam.BeaconFormat.Rfu1Size + 1 + 4 ); */
 
             // Validate the first crc of the beacon frame
-            if( crc0 == beaconCrc0 )
-            {
+          //  if( crc0 == beaconCrc0 )
+            
                 // Copy the param field for app layer
-                Ctx.LoRaMacClassBParams.MlmeIndication->BeaconInfo.Param = ( payload[phyParam.BeaconFormat.Rfu1Size] );
+             //   Ctx.LoRaMacClassBParams.MlmeIndication->BeaconInfo.Param = ( payload[phyParam.BeaconFormat.Rfu1Size] );
                 // Fetch the precise time value in milliseconds that will be used for Rx ping slot delay.
-                Ctx.BeaconCtx.BeaconTimePrecision.SubSeconds = BeaconPrecTimeValue[Ctx.LoRaMacClassBParams.MlmeIndication->BeaconInfo.Param];
+               // Ctx.BeaconCtx.BeaconTimePrecision.SubSeconds = BeaconPrecTimeValue[Ctx.LoRaMacClassBParams.MlmeIndication->BeaconInfo.Param];
 
                 // Read Time field from the frame
-                Ctx.BeaconCtx.BeaconTime.Seconds  = ( ( uint32_t )payload[phyParam.BeaconFormat.Rfu1Size + 1] ) & 0x000000FF;
-                Ctx.BeaconCtx.BeaconTime.Seconds |= ( ( uint32_t )( payload[phyParam.BeaconFormat.Rfu1Size + 2] << 8 ) ) & 0x0000FF00;
-                Ctx.BeaconCtx.BeaconTime.Seconds |= ( ( uint32_t )( payload[phyParam.BeaconFormat.Rfu1Size + 3] << 16 ) ) & 0x00FF0000;
-                Ctx.BeaconCtx.BeaconTime.Seconds |= ( ( uint32_t )( payload[phyParam.BeaconFormat.Rfu1Size + 4] << 24 ) ) & 0xFF000000;
+                Ctx.BeaconCtx.BeaconTime.Seconds  = ( ( uint32_t )payload[3] ) & 0x000000FF;
+                Ctx.BeaconCtx.BeaconTime.Seconds |= ( ( uint32_t )( payload[4] << 8 ) ) & 0x0000FF00;
+                Ctx.BeaconCtx.BeaconTime.Seconds |= ( ( uint32_t )( payload[5] << 16 ) ) & 0x00FF0000;
+                Ctx.BeaconCtx.BeaconTime.Seconds |= ( ( uint32_t )( payload[6] << 24 ) ) & 0xFF000000;
                 Ctx.BeaconCtx.BeaconTime.SubSeconds = 0;
                 Ctx.LoRaMacClassBParams.MlmeIndication->BeaconInfo.Time = Ctx.BeaconCtx.BeaconTime;
                 beaconProcessed = true;
-            }
+            
 
             // Read CRC2 field from the frame
-            beaconCrc1 = ( ( uint16_t )payload[phyParam.BeaconFormat.Rfu1Size + 1 + 4 + 2 + 7 + phyParam.BeaconFormat.Rfu2Size] ) & 0x00FF;
-            beaconCrc1 |= ( ( uint16_t )payload[phyParam.BeaconFormat.Rfu1Size + 1 + 4 + 2 + 7 + phyParam.BeaconFormat.Rfu2Size + 1] << 8 ) & 0xFF00;
-            crc1 = BeaconCrc( &payload[phyParam.BeaconFormat.Rfu1Size + 1 + 4 + 2], 7 + phyParam.BeaconFormat.Rfu2Size );
+            beaconCrc1 = ( ( uint16_t )payload[3 + 4 + 2 + 7] ) & 0x00FF;
+            beaconCrc1 |= ( ( uint16_t )payload[3+ 4 + 2 + 7 + 1] << 8 ) & 0xFF00;
+            crc1 = BeaconCrc( &payload[3 + 4 + 2], 7 );
 
             // Validate the second crc of the beacon frame
             if( crc1 == beaconCrc1 )
@@ -1378,7 +1378,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
 
                 LoRaMacClassBBeaconTimerEvent( NULL );
             }
-        }
+        
 
         if( Ctx.BeaconState == BEACON_STATE_RX )
         {
