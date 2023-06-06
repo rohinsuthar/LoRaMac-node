@@ -1331,7 +1331,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
             // Read CRC2 field from the frame
             beaconCrc1 = ( ( uint16_t )payload[3 + 4 + 2 + 7] ) & 0x00FF;
             beaconCrc1 |= ( ( uint16_t )payload[3+ 4 + 2 + 7 + 1] << 8 ) & 0xFF00;
-            crc1 = BeaconCrc( &payload[3 + 4 + 2], 7 );
+            crc1 = BeaconCrc( &payload[3 + 4], 9);
 
             // Validate the second crc of the beacon frame
             if( crc1 == beaconCrc1 )
