@@ -1295,7 +1295,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
 
     // Verify if we are in the state where we expect a beacon
     if( ( Ctx.BeaconState == BEACON_STATE_RX ) || ( Ctx.BeaconCtx.Ctrl.AcquisitionPending == 1 ) )
-    {
+    {  //UFR-TR-28 beacon frame reception
         /* if( size == phyParam.BeaconFormat.BeaconSize ) */
         
             // A beacon frame is defined as:
