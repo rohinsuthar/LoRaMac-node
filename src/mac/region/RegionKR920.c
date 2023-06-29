@@ -822,33 +822,61 @@ LoRaMacStatus_t RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_
     status = RegionCommonIdentifyChannels( &identifyChannelsParam, aggregatedTimeOff, enabledChannels,
                                            &nbEnabledChannels, &nbRestrictedChannels, time );
 
-    if( status == LORAMAC_STATUS_OK )
+
+int num_bo = 0;
+int mincw = 50;
+int rest_be = 1;
+
+
+
+ if( status == LORAMAC_STATUS_OK )
     {
+	while(1)
+	{
+	   //for back off time delay 
+       for(int val1 = 1; val1 < be; val1++ )
+       {
+       		rest_be = rest_be*2;
+	   }
+	   	random_val = num = rand() % (rest_be + 1) ;
+		backoff_time = ifs + random_val;
+		delayMS(backoff_time);
+		//till back off time delay
+		
+		
+		
         for( uint8_t  i = 0, j = randr( 0, nbEnabledChannels - 1 ); i < KR920_MAX_NB_CHANNELS; i++ )
         {
             channelNext = enabledChannels[j];
             j = ( j + 1 ) % nbEnabledChannels;
 
-            // Perform carrier sense for KR920_CARRIER_SENSE_TIME
-            // If the channel is free, we can stop the LBT mechanism
-            if( Radio.IsChannelFree( RegionNvmGroup2->Channels[channelNext].Frequency, KR920_LBT_RX_BANDWIDTH, RegionNvmGroup2->RssiFreeThreshold, RegionNvmGroup2->CarrierSenseTime ) == true )
+           
+            if(Radio.IsChannelFree())
             {
-                // Free channel found
                 *channel = channelNext;
                 return LORAMAC_STATUS_OK;
             }
         }
-        // Even if one or more channels are available according to the channel plan, no free channel
-        // was found during the LBT procedure.
-        status = LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND;
+     
+     if(nb > max_backoff)
+     {
+     	status = LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND;
+     	return LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND;
+	 }
+     
+
+	nb++;
+    be = (be+1 > maxcw) ? maxcw : be+1;
     }
+    
+    
     else if( status == LORAMAC_STATUS_NO_CHANNEL_FOUND )
     {
-        // Datarate not supported by any channel, restore defaults
         RegionNvmGroup2->ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
     }
     return status;
 }
+
 
 LoRaMacStatus_t RegionKR920ChannelAdd( ChannelAddParams_t* channelAdd )
 {
